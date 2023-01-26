@@ -15,12 +15,12 @@ class View
         $hit = fetchAll("SELECT lt.sn, ifnull(sum(hit.count), 0) as `hit_count` FROM `list_tbl` as `lt` LEFT OUTER JOIN `hits_tbl` as `hit` on lt.sn = hit.list_sn GROUP BY lt.sn ORDER BY lt.sn desc");
 
         $write = fetchAll("SELECT lt.sn, lt.list_title, lt.list_img, lt.owner, count(ht.user_id) as `heart_count` FROM `list_tbl` as `lt` LEFT OUTER JOIN `heart_tbl` as `ht` on lt.sn = ht.list_sn WHERE `owner` = ? GROUP BY `sn`", [$user_id]);
-        $like = fetchAll("SELECT lt.sn, lt.list_title, lt.list_img, lt.owner, count(ht.user_id) as `heart_count` FROM `list_tbl` as `lt` LEFT OUTER JOIN `heart_tbl` as `ht` on lt.sn = ht.list_sn WHERE ht.user_id = ? GROUP BY `sn`", [$user_id]);
+        $like = fetchAll("SELECT lt.sn, lt.list_title, lt.list_img, lt.owner, count(ht.user_id) as `heart_count` FROM `list_tbl` as `lt` LEFT OUTER JOIN `heart_tbl` as `ht` on lt.sn = ht.list_sn WHERE lt.sn IN(SELECT list_sn FROM `heart_tbl` WHERE user_id = ?) GROUP BY `sn`", [$user_id]);
         
         foreach($write as $w) {
             $w->list_img = $w->list_img === "" ? "" : explode("&", $w->list_img)[0];
         }
-
+        
         foreach($like as $l) {
             $l->list_img = $l->list_img === "" ? "" : explode("&", $l->list_img)[0];
         }
